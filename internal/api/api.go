@@ -53,6 +53,7 @@ func StartServer(cfg *API, st storage.Storage) {
 	apiRtr.HandleFunc("/states/{name}/serials", s.ListStateSerials).Methods("GET")
 	apiRtr.HandleFunc("/resources/{state}/{module}/{name}", s.GetResource).Methods("GET")
 	apiRtr.HandleFunc("/resources/{state}/{name}", s.GetResource).Methods("GET")
+	apiRtr.HandleFunc("/plans/${workspace}", s.InsertPlan).Methods("POST")
 
 	c := cors.New(cors.Options{
 		AllowedOrigins: []string{"*"},

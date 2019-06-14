@@ -341,6 +341,11 @@ func getResource(state State, module, name string) (res Resource, err error) {
 	return res, ErrNoDocuments
 }
 
+// InsertPlan adds a Terraform plan to the database
+func (st *MongoDBStorage) InsertPlan(doc Plan, timestamp, source, name string) (err error) {
+	return
+}
+
 func paginateReq(req mongo.Pipeline, pageNum, pageSize int) (pl mongo.Pipeline) {
 	skips := pageSize * (pageNum - 1)
 

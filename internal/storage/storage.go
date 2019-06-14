@@ -7,6 +7,10 @@ import (
 	"github.com/hashicorp/terraform/terraform"
 )
 
+// Plan is a Terraform plan
+type Plan struct {
+}
+
 // State is a Terraform state
 type State struct {
 	LastModified time.Time `json:"last_modified"`
@@ -113,4 +117,5 @@ type Storage interface {
 	UnlockState(name string, lockData LockInfo) (err error)
 	ListStateSerials(name string, pageNum, pageSize int) (coll StateCollection, err error)
 	GetResource(state, module, name string) (res Resource, err error)
+	InsertPlan(document Plan, timestamp, source, name string) (err error)
 }
