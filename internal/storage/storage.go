@@ -65,6 +65,19 @@ type StateCollection struct {
 	Data     []*State    `json:"data"`
 }
 
+// Workspace is a Terraform workspace
+type Workspace struct {
+	LastModified time.Time `json:"last_modified"`
+	Name         string    `json:"name"`
+
+	// Keep Lock info
+	Locked   bool     `json:"locked"`
+	LockInfo LockInfo `json:"lock"`
+
+	States []*terraform.State
+	Plans  []*terraform.Plan
+}
+
 // LockInfo stores lock metadata.
 //
 // Copied from Terraform's source code
