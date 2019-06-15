@@ -65,6 +65,12 @@ type StateCollection struct {
 	Data     []*State    `json:"data"`
 }
 
+// workspaceCollection is a collection of Workspace, with metadata
+type WorkspaceCollection struct {
+	Metadata []*Metadata  `json:"metadata"`
+	Data     []*Workspace `json:"data"`
+}
+
 // Workspace is a Terraform workspace
 type Workspace struct {
 	LastModified time.Time `json:"last_modified"`
