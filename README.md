@@ -90,14 +90,14 @@ You can use TerraDB as an HTTP remote backend for Terraform:
 ```hcl
 terraform {
   backend "http" {
-    address = "http://<terradb>:<port>/v1/states/<name>"
-    lock_address = "http://<terradb>:<port>/v1/states/<name>"
-    unlock_address = "http://<terradb>:<port>/v1/states/<name>"
+    address = "http://<terradb>:<port>/v1/states/<workspace>"
+    lock_address = "http://<terradb>:<port>/v1/states/<workspace>"
+    unlock_address = "http://<terradb>:<port>/v1/states/<workspace>"
   }
 }
 ```
 
-Note: do not use the `/` character in the project name.
+Note: do not use the `/` character in the workspace's name.
 
 
 ## API Documentation
@@ -116,15 +116,15 @@ Returns the latest serial of each state stored in the database, along with its
 lock information.
 
 
-### `/states/{name}`
+### `/states/{workspace}`
 
-Returns the latest serial of a single state by its name, along with its lock
+Returns the latest serial of a single workspace's state, along with its lock
 information.
 
 
-### `/states/{name}/serials`
+### `/states/{workspace}/serials`
 
-Returns all serials of a single state by its name. Lock information is not
+Returns all serials of a single workspace's state. Lock information is not
 provided.
 
 ### `/resources/${state}/${module}/${name}`

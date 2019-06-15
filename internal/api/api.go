@@ -45,12 +45,12 @@ func StartServer(cfg *API, st storage.Storage) {
 
 	apiRtr := router.PathPrefix("/v1").Subrouter()
 	apiRtr.HandleFunc("/states", s.ListStates).Methods("GET")
-	apiRtr.HandleFunc("/states/{name}", s.InsertState).Methods("POST")
-	apiRtr.HandleFunc("/states/{name}", s.GetState).Methods("GET")
-	apiRtr.HandleFunc("/states/{name}", s.RemoveState).Methods("DELETE")
-	apiRtr.HandleFunc("/states/{name}", s.LockState).Methods("LOCK")
-	apiRtr.HandleFunc("/states/{name}", s.UnlockState).Methods("UNLOCK")
-	apiRtr.HandleFunc("/states/{name}/serials", s.ListStateSerials).Methods("GET")
+	apiRtr.HandleFunc("/states/{workspace}", s.InsertState).Methods("POST")
+	apiRtr.HandleFunc("/states/{workspace}", s.GetState).Methods("GET")
+	apiRtr.HandleFunc("/states/{workspace}", s.RemoveState).Methods("DELETE")
+	apiRtr.HandleFunc("/states/{workspace}", s.LockState).Methods("LOCK")
+	apiRtr.HandleFunc("/states/{workspace}", s.UnlockState).Methods("UNLOCK")
+	apiRtr.HandleFunc("/states/{workspace}/serials", s.ListStateSerials).Methods("GET")
 	apiRtr.HandleFunc("/resources/{state}/{module}/{name}", s.GetResource).Methods("GET")
 	apiRtr.HandleFunc("/resources/{state}/{name}", s.GetResource).Methods("GET")
 
