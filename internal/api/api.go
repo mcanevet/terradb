@@ -44,6 +44,7 @@ func StartServer(cfg *API, st storage.Storage) {
 	router.Use(s.handleAPIRequest)
 
 	apiRtr := router.PathPrefix("/v1").Subrouter()
+	apiRtr.HandleFunc("/workspace", s.ListWorkspaces).Methods("GET")
 	apiRtr.HandleFunc("/states", s.ListStates).Methods("GET")
 	apiRtr.HandleFunc("/states/{workspace}", s.InsertState).Methods("POST")
 	apiRtr.HandleFunc("/states/{workspace}", s.GetState).Methods("GET")

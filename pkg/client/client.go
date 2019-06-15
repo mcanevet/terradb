@@ -29,6 +29,16 @@ func (c *Client) ListStates() (states storage.StateCollection, err error) {
 	return
 }
 
+// ListWorkspaces lists all workspaces in TerraDB.
+func (c *Client) ListWorkspaces() (workspaces storage.WorkspaceCollection, err error) {
+	err = c.get(&workspaces, "workspaces", nil)
+	if err != nil {
+		return workspaces, fmt.Errorf("failed to retrieve workspaces: %v", err)
+	}
+
+	return
+}
+
 // GetState returns a TerraDB state from its name and serial.
 // Use 0 as serial to return the latest version of the state.
 func (c *Client) GetState(name string, serial int) (st storage.State, err error) {

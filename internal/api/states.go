@@ -74,6 +74,37 @@ func (s *server) ListStates(w http.ResponseWriter, r *http.Request) {
 	return
 }
 
+func (s *server) ListWorkspaces(w http.ResponseWriter, r *http.Request) {
+	page, pageSize, err := s.parsePagination(r)
+	if err != nil {
+		err500(err, "", w)
+		return
+	}
+
+	coll, err := s.st.ListWorkspaces(page, pageSize)
+	if err != nil {
+		err500(err, "failed to retrieve workspaces", w)
+		return
+	}
+
+	/*
+		if len(coll.Data) == 0 {
+			w.WriteHeader(http.StatusNoContent)
+			return
+		}
+	*/
+
+	data, err := json.Marshal(coll)
+	if err != nil {
+		err500(err, "failed to marshal workspaces", w)
+		return
+	}
+
+	w.WriteHeader(http.StatusOK)
+	w.Write(data)
+	return
+}
+
 func (s *server) GetState(w http.ResponseWriter, r *http.Request) {
 	params := mux.Vars(r)
 

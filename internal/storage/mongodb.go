@@ -30,6 +30,7 @@ type mongoDoc struct {
 	Timestamp string
 	Source    string
 	State     *State
+	Workspace *Workspace
 	Name      string
 }
 
@@ -185,6 +186,61 @@ func (st *MongoDBStorage) ListStates(pageNum, pageSize int) (coll StateCollectio
 				return coll, fmt.Errorf("failed to retrieve lock for %s: %v", state.Name, err)
 			}
 			coll.Data = append(coll.Data, state)
+		}
+		return coll, nil
+	}
+
+	return coll, nil
+}
+
+// ListWorkspaces returns all workspaces from TerraDB
+func (st *MongoDBStorage) ListWorkspaces(pageNum, pageSize int) (coll WorkspaceCollection, err error) {
+	collection := st.client.Database("terradb").Collection("terraform_workspaces")
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+
+	req := mongo.Pipeline{
+		{{"$group", bson.D{
+			{"_id", "$name"},
+			{"name", bson.D{{"$last", "$name"}}},
+			{"state", bson.D{{"$last", "$state"}}},
+			{"timestamp", bson.D{{"$last", "$timestamp"}}},
+		}}},
+	}
+	pl := paginateReq(req, pageNum, pageSize)
+	cur, err := collection.Aggregate(ctx, pl, options.Aggregate())
+	if err != nil {
+		return coll, fmt.Errorf("failed to list workspaces: %v", err)
+	}
+
+	defer cur.Close(context.Background())
+
+	for cur.Next(nil) {
+		var mongoColl mongoDocCollection
+		err = cur.Decode(&mongoColl)
+		if err != nil {
+			return coll, fmt.Errorf("failed to decode workspace: %v", err)
+		}
+		coll.Metadata = mongoColl.Metadata
+		for _, d := range mongoColl.Docs {
+			workspace, err := d.toWorkspace()
+			if err != nil {
+				return coll, fmt.Errorf("failed to get state: %v", err)
+			}
+
+			workspace.LockInfo, err = st.GetLockStatus(workspace.Name)
+			// Init value required because of omitempty
+			workspace.Locked = false
+			if err == nil {
+				workspace.Locked = true
+			} else if err == ErrNoDocuments {
+				log.WithFields(log.Fields{
+					"name": workspace.Name,
+				}).Info("Did not find lock info")
+			} else {
+				return coll, fmt.Errorf("failed to retrieve lock for %s: %v", workspace.Name, err)
+			}
+			coll.Data = append(coll.Data, workspace)
 		}
 		return coll, nil
 	}
@@ -358,6 +414,16 @@ func paginateReq(req mongo.Pipeline, pageNum, pageSize int) (pl mongo.Pipeline) 
 		}},
 	)
 
+	return
+}
+
+func (d *mongoDoc) toWorkspace() (workspace *Workspace, err error) {
+	workspace = d.Workspace
+	workspace.Name = d.Name
+	workspace.LastModified, err = time.Parse("20060102150405", d.Timestamp)
+	if err != nil {
+		return workspace, fmt.Errorf("failed to convert timestamp: %v", err)
+	}
 	return
 }
 
