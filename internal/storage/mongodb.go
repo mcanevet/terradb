@@ -112,8 +112,38 @@ func (st *MongoDBStorage) LockState(name string, lockData LockInfo) (err error) 
 	return
 }
 
+// LockWorkspace locks a Terraform state.
+func (st *MongoDBStorage) LockWorkspace(name string, lockData LockInfo) (err error) {
+	collection := st.client.Database("terradb").Collection("locks")
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+
+	// Workspace file uses the same key as lock
+	lockData.Path = name
+
+	_, err = collection.InsertOne(ctx, map[string]interface{}{
+		"name": name,
+		"lock": lockData,
+	})
+
+	return
+}
+
 // UnlockState unlocks a Terraform state.
 func (st *MongoDBStorage) UnlockState(name string, lockData LockInfo) (err error) {
+	collection := st.client.Database("terradb").Collection("locks")
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+
+	_, err = collection.DeleteOne(ctx, map[string]interface{}{
+		"name": name,
+	}, &options.DeleteOptions{})
+
+	return
+}
+
+// UnlockWorkspace unlocks a Terraform state.
+func (st *MongoDBStorage) UnlockWorkspace(name string, lockData LockInfo) (err error) {
 	collection := st.client.Database("terradb").Collection("locks")
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()

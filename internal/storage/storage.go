@@ -130,7 +130,9 @@ type Storage interface {
 	RemoveState(name string) (err error)
 	GetLockStatus(name string) (lockStatus LockInfo, err error)
 	LockState(name string, lockData LockInfo) (err error)
+	LockWorkspace(name string, lockData LockInfo) (err error)
 	UnlockState(name string, lockData LockInfo) (err error)
+	UnlockWorkspace(name string, lockData LockInfo) (err error)
 	ListStateSerials(name string, pageNum, pageSize int) (coll StateCollection, err error)
 	GetResource(state, module, name string) (res Resource, err error)
 }
